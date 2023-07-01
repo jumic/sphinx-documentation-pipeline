@@ -55,6 +55,7 @@ export class SphinxDocumentationAppStack extends cdk.Stack {
 
     const distribution = new cloudfront.Distribution(this, "Distribution", {
       defaultBehavior: { origin: new origins.S3Origin(documentationBucket) },
+      defaultRootObject: "index.html",
     });
 
     new s3deploy.BucketDeployment(this, "DeployWebsite", {
