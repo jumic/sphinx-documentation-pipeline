@@ -28,10 +28,18 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
             "arn:aws:codestar-connections:eu-central-1:352770552266:connection/f10d531d-7adf-45ab-811d-fa114d9e518c",
         }
       ),
-      primaryOutputDirectory: 'cdk/cdk.out',
-      commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npx cdk synth", "cd .."],
+      primaryOutputDirectory: "cdk/cdk.out",
+      commands: [
+        "cd documentation ",
+        "make html",
+        "make latexpdf",
+        "cd ..",
+        "cd cdk",
+        "npm ci",
+        "npx cdk synth",
+        "cd ..",
+      ],
     });
-
 
     const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
       synth: buildStep,
@@ -62,6 +70,10 @@ export class SphinxDocumentationAppStack extends cdk.Stack {
       sources: [
         s3deploy.Source.asset(
           path.join(__dirname, "..", "..", "documentation", "_build", "html")
+        ),
+        s3deploy.Source.asset(
+          path.join(__dirname, "..", "..", "documentation", "_build", "latex"),
+          { exclude: ["**", "!exampledocs.pdf"] }
         ),
       ],
       destinationBucket: documentationBucket,
