@@ -29,7 +29,7 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
         }
       ),
       primaryOutputDirectory: 'cdk/cdk.out',
-      commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npm run build", "npx cdk synth"],
+      commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npx cdk synth", "cd .."],
     });
 
 
