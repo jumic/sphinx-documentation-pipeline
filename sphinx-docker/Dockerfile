@@ -1,4 +1,4 @@
-FROM sphinxdoc/sphinx-latexpdf
+FROM sphinxdoc/sphinx
 
 WORKDIR /docs
 RUN apt-get update
