@@ -28,7 +28,7 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
               "arn:aws:codestar-connections:eu-central-1:352770552266:connection/f10d531d-7adf-45ab-811d-fa114d9e518c",
           }
         ),
-        commands: ["npm ci", "npm run build", "npx cdk synth"],
+        commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npm run build", "npx cdk synth"],
       }),
       dockerEnabledForSelfMutation: true,
     });
