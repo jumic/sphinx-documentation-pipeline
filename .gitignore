@@ -9,3 +9,5 @@ cdk.out
 
 # sphinx build
 documentation/_build
+
+.DS_STORE
