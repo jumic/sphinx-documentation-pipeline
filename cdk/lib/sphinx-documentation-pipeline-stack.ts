@@ -13,27 +13,35 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
-      synth: new pipelines.CodeBuildStep("Synth", {
-        buildEnvironment: {
-          buildImage: codebuild.LinuxBuildImage.fromAsset(this, "Image", {
-            directory: path.join(__dirname, "..", "..", "sphinx-docker"),
-          }),
-        },
-        input: pipelines.CodePipelineSource.connection(
-          "jumic/sphinx-documentation-pipeline",
-          "main",
-          {
-            connectionArn:
-              "arn:aws:codestar-connections:eu-central-1:352770552266:connection/f10d531d-7adf-45ab-811d-fa114d9e518c",
-          }
-        ),
-        commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npm run build", "npx cdk synth"],
-      }),
-      dockerEnabledForSelfMutation: true,
+    const buildStep = new pipelines.CodeBuildStep("Synth", {
+      buildEnvironment: {
+        buildImage: codebuild.LinuxBuildImage.fromAsset(this, "Image", {
+          directory: path.join(__dirname, "..", "..", "sphinx-docker"),
+        }),
+        // computeType: codebuild.ComputeType.LARGE,
+      },
+      input: pipelines.CodePipelineSource.connection(
+        "jumic/sphinx-documentation-pipeline",
+        "main",
+        {
+          connectionArn:
+            "arn:aws:codestar-connections:eu-central-1:352770552266:connection/f10d531d-7adf-45ab-811d-fa114d9e518c",
+        }
+      ),
+      primaryOutputDirectory: 'cdk/cdk.out',
+      commands: ["cd documentation ", "make html", "cd .." , "cd cdk", "npm ci", "npm run build", "npx cdk synth"],
     });
 
+
+    const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
+      synth: buildStep,
+      dockerEnabledForSelfMutation: true,
+    });
     pipeline.addStage(new SphinxDocumentationStage(this, "Deployment"));
+
+    pipeline.buildPipeline();
+    const cfnArmTestProject = buildStep.project.node.defaultChild as codebuild.CfnProject
+    cfnArmTestProject.addOverride('Properties.Environment.Type','ARM_CONTAINER')
   }
 }
 
