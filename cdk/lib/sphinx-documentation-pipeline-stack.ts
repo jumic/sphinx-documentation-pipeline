@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
+import { DockerImageAsset, Platform } from "aws-cdk-lib/aws-ecr-assets";
 import * as path from "path";
 import * as pipelines from "aws-cdk-lib/pipelines";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
@@ -17,8 +17,8 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
       buildEnvironment: {
         buildImage: codebuild.LinuxBuildImage.fromAsset(this, "Image", {
           directory: path.join(__dirname, "..", "..", "sphinx-docker"),
+          platform: Platform.LINUX_AMD64,
         }),
-        // computeType: codebuild.ComputeType.LARGE,
       },
       input: pipelines.CodePipelineSource.connection(
         "jumic/sphinx-documentation-pipeline",
@@ -40,8 +40,8 @@ export class SphinxDocumentationPipelineStack extends cdk.Stack {
     pipeline.addStage(new SphinxDocumentationStage(this, "Deployment"));
 
     pipeline.buildPipeline();
-    const cfnArmTestProject = buildStep.project.node.defaultChild as codebuild.CfnProject
-    cfnArmTestProject.addOverride('Properties.Environment.Type','ARM_CONTAINER')
+    // const cfnArmTestProject = buildStep.project.node.defaultChild as codebuild.CfnProject
+    // cfnArmTestProject.addOverride('Properties.Environment.Type','ARM_CONTAINER')
   }
 }
 
